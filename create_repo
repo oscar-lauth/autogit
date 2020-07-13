@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# in ~/.bash_profile
+
+export token="Insert github api token here" # generate github api token here
+
+function create(){
+    cd Path/To/Projects # directory you store project folders
+    mkdir $1
+    cd $1
+    git init
+    touch README.md
+    touch .gitignore
+    if [[ $2 == "-venv" ]]
+    then
+        python3 -m venv venv
+    fi
+    git add .
+    git commit -m "Initial commit!"
+    curl -i -H "Authorization: token "$token -d '{"name": "'"$1"'","private": true}' https://api.github.com/user/repos
+    git remote add origin "https://github.com/your_username_here/${1}.git" # add your github username in url
+    git push -u origin master
+}
