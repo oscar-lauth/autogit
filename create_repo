@@ -10,7 +10,6 @@ function create(){
     cd $1
     git init
     touch README.md
-    touch .gitignore
     if [[ $2 == "-venv" ]]
     then
         python3 -m venv venv
