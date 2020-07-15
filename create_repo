@@ -2,22 +2,37 @@
 
 # in ~/.bash_profile
 
-export token="Insert github api token here" # generate github api token here
+export token="github api token" # add your personal github api token
 
 function create(){
     local repo_name=$1
+    local venv_flag='false' # default no venv
+    local private_flag='true' # default private repo
+    local output_flag=/dev/null 2>&1 # default minimal output
+
+     for flag in "${@:2}"
+     do
+        case "${flag}" in
+            -venv) venv_flag='true' ;; # make venv
+            -public) private_flag='false' ;; # public repo
+            -verbose) output_flag=/dev/tty ;; # redirect output to terminal
+        esac
+    done
+
     cd Path/To/Projects # directory you store project folders
     mkdir $repo_name
     cd $repo_name
-    git init
-    touch README.md
-    if [[ $2 == "-venv" ]]
-    then
-        python3 -m venv venv
-    fi
-    git add .
-    git commit -m "Initial commit!"
-    curl -i -H "Authorization: token "$token -d '{"name": "'"$repo_name"'","private": true}' https://api.github.com/user/repos
-    git remote add origin "https://github.com/your_username_here/${repo_name}.git" # add your github username in url
-    git push -u origin master
+    {
+        git init
+        touch README.md
+        if [[ $venv_flag == "true" ]]
+        then
+            python3 -m venv venv
+        fi
+        git add .
+        git commit -m "Initial commit!"
+        curl -i -H "Authorization: token "$token -d '{"name": "'"$repo_name"'","private": '$private_flag'}' https://api.github.com/user/repos
+        git remote add origin "https://github.com/your_username_here/${repo_name}.git" # add your github username in url
+        git push -u origin master
+    }>"$output_flag"
 }
