@@ -4,7 +4,25 @@
 
 export token="github api token" # add your personal github api token
 
+function print_usage(){
+    echo "Example usage:"
+    echo "  create my_project"
+    echo "  create --help"
+    echo -e "  create my_project -v -public -l\n"
+    echo "Flag options:"
+    echo "  [--help | -h]: show this help menu"
+    echo "  [--venv | -v]: create python venv in project"
+    echo "  [--loud | -l]: show all output and errors"
+    echo "  [--public | -p]: make repo public"
+}
+
 function create(){
+    if [[ "$1" == "--help" || "$1" == "-h" || -z "$1" ]]
+    then
+        print_usage
+        return
+    fi
+
     local repo_name=$1
     local venv_flag='false' # default no venv
     local private_flag='true' # default private repo
@@ -13,9 +31,9 @@ function create(){
      for flag in "${@:2}"
      do
         case "${flag}" in
-            -venv) venv_flag='true' ;; # make venv
-            -public) private_flag='false' ;; # public repo
-            -verbose) output_flag=/dev/tty ;; # redirect output to terminal
+            --venv|-v) venv_flag='true' ;; # make venv
+            --loud|-l) output_flag=/dev/tty ;; # redirect output to terminal
+            --public|-p) private_flag='false' ;; # public repo
         esac
     done
 
@@ -25,11 +43,11 @@ function create(){
     {
         git init
         touch README.md
-        if [[ $venv_flag == "true" ]]
+        if [[ "$venv_flag" == "true" ]]
         then
             python3 -m venv venv
         fi
-        git add .
+        git add README.md
         git commit -m "Initial commit!"
         curl -i -H "Authorization: token "$token -d '{"name": "'"$repo_name"'","private": '$private_flag'}' https://api.github.com/user/repos
         git remote add origin "https://github.com/your_username_here/${repo_name}.git" # add your github username in url
