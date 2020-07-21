@@ -13,6 +13,7 @@ function print_usage(){
     echo "  [--help | -h]: show this help menu"
     echo "  [--venv | -v]: create python venv in project"
     echo "  [--loud | -l]: show all output and errors"
+    echo "  [--flutter | -f]: create flutter project"
     echo "  [--public | -p]: make repo public"
 }
 
@@ -27,27 +28,37 @@ function create(){
     local venv_flag='false' # default no venv
     local private_flag='true' # default private repo
     local output_flag=/dev/null 2>&1 # default minimal output
+    local flutter_flag='false' # defualt non-flutter project
 
      for flag in "${@:2}"
      do
         case "${flag}" in
             --venv|-v) venv_flag='true' ;; # make venv
             --loud|-l) output_flag=/dev/tty ;; # redirect output to terminal
+            --flutter|-f) flutter_flag='true' ;; # flutter project
             --public|-p) private_flag='false' ;; # public repo
         esac
     done
 
     cd Path/To/Projects # directory you store project folders
-    mkdir $repo_name
-    cd $repo_name
+    if [[ "$flutter_flag" == "false" ]]
+        then
+            mkdir $repo_name
+            cd $repo_name
+        fi
     {
+        if [[ "$flutter_flag" == "true" ]]
+        then
+            flutter create $repo_name
+            cd $repo_name
+        fi
         git init
         touch README.md
         if [[ "$venv_flag" == "true" ]]
         then
             python3 -m venv venv
         fi
-        git add README.md
+        git add .
         git commit -m "Initial commit!"
         curl -i -H "Authorization: token "$token -d '{"name": "'"$repo_name"'","private": '$private_flag'}' https://api.github.com/user/repos
         git remote add origin "https://github.com/your_username_here/${repo_name}.git" # add your github username in url
