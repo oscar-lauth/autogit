@@ -1,6 +1,7 @@
 # autogit
 -autogit is a collection of functions that enhance the git command line experience  
 -to use the functions in autogit, you can add the code to your .bashrc or .bash_profile  
+-for some commands, you must generate a github api token and add it to the file  
 ## Functions
 Here are some of the currently available autogit commands  
 # Create
